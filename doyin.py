@@ -123,6 +123,7 @@ def getUserMedia(user_id, dytk, url):
                 'addr': aweme['video']['play_addr']['url_list'][0],
                 'desc': aweme['desc'],
                 'duration': aweme['video']['duration'],
+                'cover': aweme['video']['cover']['url_list'][0],
                 'statistics': aweme['statistics']
             }
             videos.append(video)
