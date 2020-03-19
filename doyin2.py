@@ -10,7 +10,7 @@ import re
 import os
 
 headers = {
-    'accept-encoding': 'gzip, deflate, br',
+    'accept-encoding': 'deflate',
     'accept-language': 'zh-CN,zh;q=0.9',
     'pragma': 'no-cache',
     'cache-control': 'no-cache',
