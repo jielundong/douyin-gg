@@ -27,9 +27,9 @@ mapCode2Font = {"num_9":8,"num_5":5,"num_6":6,"num_":1,"num_7":9,"num_8":7,"num_
 
 def getUserInfo(shared_url, **headers):
     real_url = getRealAddress(shared_url)
-    parsed = urllib.parse.urlparse(real_url)
+    parsed = urlparse(real_url)
     hostname = parsed.hostname
-    sec_uid = urllib.parse.parse_qs(parsed.query)['sec_uid']
+    sec_uid = parse_qs(parsed.query)['sec_uid']
     user_info_url = "https://%s/web/api/v2/user/info/" % hostname
     user_info_params = { 'sec_uid': sec_uid }
     res = requests.get(user_info_url, headers=headers,
