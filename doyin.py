@@ -28,46 +28,36 @@ mapCode2Name = {"0xe602":"num_","0xe605":"num_3","0xe606":"num_4","0xe603":"num_
 mapCode2Font = {"num_9":8,"num_5":5,"num_6":6,"num_":1,"num_7":9,"num_8":7,"num_1":0,"num_2":3,"num_3":2,"num_4":4}
 
 def getUserInfo(shared_url, **headers):
-    html_doc = getHtml(shared_url, **headers)
-    result = {}
-    if html_doc:
-        html_doc = html_doc.replace('&#','hzsd')
-        soup = BeautifulSoup(html_doc, 'html.parser')
-        header_url = soup.select("[class~=avatar]")[0]['src']
-        nickname = soup.select("[class~=nickname]")[0].string
-        uid = soup.select("[class~=shortid]")[0].get_text()
-        uid = uid.split(" ")
-        id = woff2tff(uid)
-        sign = soup.select("[class~=signature]")[0].string
-        dataInfo = soup.select("[class~=follow-info]")[0]
-        dataInfo = splitByChinese(dataInfo.get_text())
-        dataInfo = [ d for d in dataInfo if len(d) > 0 ]
-        focus = dataInfo[0].split(' ')
-        focus = woff2tff(focus)
-        fans = dataInfo[1].split(' ')
-        fans = woff2tff(fans)
-        liked = dataInfo[2].split(' ')
-        liked = woff2tff(liked)
-        works = soup.select("[class='user-tab active tab get-list']")[0].get_text()
-        works = woff2tff(works.split(' '))
-        result['avatar'] = header_url
-        result['nickname'] = nickname
-        result['id'] = id
-        result['sign'] = sign
-        result['focus'] = focus
-        result['fans'] = fans
-        result['liked'] = liked
-        result['works'] = works
-    return result
+    real_url = getRealAddress(shared_url)
+    parsed = urllib.parse.urlparse(real_url)
+    hostname = parsed.hostname
+    sec_uid = urllib.parse.parse_qs(parsed.query)['sec_uid']
+    user_info_url = "https://%s/web/api/v2/user/info/" % hostname
+    user_info_params = { 'sec_uid': sec_uid }
+    res = requests.get(user_info_url, headers=headers,
+                            params=user_info_params).json()
+    user_info = res['user_info']
+    user_avatar = user_info['avatar_larger']['url_list'][2]
+    user_nickname = user_info['nickname']
+    user_sign = user_info['signature']
+    user_id = user_info['unique_id']
+    count_of_videos = user_info['aweme_count']
+    follower_count = user_info['follower_count']
+    following_count = user_info['following_count']
+    zan_count = user_info['total_favorited']
+    like_count = user_info['favoriting_count']
+    return {'user_avatar':user_avatar, 'user_nickname':user_nickname, 'user_sign':user_sign, 'user_id':user_id,
+           'count_of_videos':count_of_videos, 'follower_count':follower_count, 'following_count':following_count,
+           'zan_count':zan_count, 'like_count':like_count, 'like_count':like_count}
 
 def getUserVideos(url):
     number = re.findall(r'share/user/(\d+)', url)
     if not len(number):
         return
     dytk = get_dytk(url)
-    hostname = urllib.parse.urlparse(url).hostname
-    if hostname != 't.tiktok.com' and not dytk:
-        return
+    # hostname = urllib.parse.urlparse(url).hostname
+    # if hostname != 't.tiktok.com' and not dytk:
+    #     return
     user_id = number[0]
     return getUserMedia(user_id, dytk, url)
 
@@ -187,5 +177,5 @@ def getUserAll(shared_url):
     return profile
 
 if __name__ == '__main__':
-    userInfo = getUserAll("https://v.douyin.com/qKDMXG/")
+    userInfo = getUserAll("https://v.douyin.com/JrN1GLV")
     print(json.dumps(userInfo))
